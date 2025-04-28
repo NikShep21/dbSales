@@ -22,7 +22,30 @@ def add_product(name, category, price, quantity):
 
     conn.commit()
     conn.close()
+def get_receipts_by_date(date):
+    conn = get_connection()
+    cur = conn.cursor()
 
+    # Получаем все чеки, которые соответствуют дате
+    cur.execute('''
+        SELECT id, sale_date FROM Receipt WHERE sale_date = ? ORDER BY sale_date DESC
+    ''', (date,))
+    receipts = cur.fetchall()
+
+    # Получаем все позиции для каждого чека
+    receipts_data = []
+    for receipt_id, sale_date in receipts:
+        cur.execute('''
+            SELECT p.name, ri.quantity, ri.total_price
+            FROM ReceiptItem ri
+            JOIN Product p ON ri.product_id = p.id
+            WHERE ri.receipt_id = ?
+        ''', (receipt_id,))
+        items = cur.fetchall()
+        receipts_data.append((receipt_id, sale_date, items))
+
+    conn.close()
+    return receipts_data
 def get_products_grouped_by_category():
     conn = get_connection()
     cur = conn.cursor()
