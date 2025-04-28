@@ -26,13 +26,13 @@ def get_receipts_by_date(date):
     conn = get_connection()
     cur = conn.cursor()
 
-    # Получаем все чеки, которые соответствуют дате
+
     cur.execute('''
         SELECT id, sale_date FROM Receipt WHERE sale_date = ? ORDER BY sale_date DESC
     ''', (date,))
     receipts = cur.fetchall()
 
-    # Получаем все позиции для каждого чека
+
     receipts_data = []
     for receipt_id, sale_date in receipts:
         cur.execute('''
